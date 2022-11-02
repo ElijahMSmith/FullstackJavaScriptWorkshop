@@ -8,21 +8,25 @@ const xMarker = '<img src="x.svg" class="marker" />';
 const oMarker = '<img src="o.svg" class="marker" />';
 
 const socket = io();
-console.log(socket);
 
 let activeGame = null;
 let gameCode = null;
-let gameName = null;
+let myNumber = null;
 
 for (const cell of cells) {
 	cell.addEventListener("click", () => {
 		if (!activeGame || activeGame.gameOver) return;
 		const code = codeInput.value;
 		const cellId = Number(cell.id);
-		socket.emit("playMove", code, [cellId / 3, cellId % 3], (success) => {
-			if (!success) console.log("Not able to play move");
-			else console.log("Move played successfully!");
-		});
+		socket.emit(
+			"playMove",
+			code,
+			[Math.floor(cellId / 3), cellId % 3],
+			(success) => {
+				if (!success) console.log("Not able to play move");
+				else console.log("Move played successfully!");
+			}
+		);
 	});
 }
 
@@ -32,12 +36,12 @@ startForm.addEventListener("submit", (e) => {
 	const name = nameInput.value;
 	activeGame = null;
 
-	socket.emit("joinGame", code, name, (success) => {
+	socket.emit("joinGame", code, name, (success, playerNum, gameState) => {
 		if (!success) console.log("Not able to create/join game");
 		else {
 			console.log("Game joined successfully!");
 			gameCode = code;
-			gameName = name;
+			myNumber = playerNum;
 		}
 	});
 });
@@ -50,25 +54,31 @@ socket.on("terminated", () => {
 
 function updateGame(gameState) {
 	console.log(gameState);
+	for (let marker of document.querySelectorAll(".marker")) marker.remove();
+
 	if (!gameState) {
 		activeGame = null;
 		gameCode = null;
+		for (let box of document.querySelectorAll(".cell"))
+			box.style.backgroundColor = "red";
 	} else {
 		activeGame = gameState;
-		for (let marker of document.getElementsByClassName("marker"))
-			marker.remove();
+
 		for (let i = 0; i < 3; i++) {
 			for (let j = 0; j < 3; j++) {
 				const val = activeGame.gameState[i][j];
+				if (val === " ") continue;
+
 				const parentId = i * 3 + j;
-				if (val === "X")
-					document.getElementById(parentId).innerHTML = xMarker;
-				else if (val === "O")
-					document.getElementById(parentId).innerHTML = oMarker;
+				let newMarker = document.createElement("img");
+				newMarker.classList.add("marker");
+				newMarker.style.display = "block";
+				if (val === "X") newMarker.src = "x.svg";
+				else if (val === "O") newMarker.src = "o.svg";
+				document.getElementById(parentId).appendChild(newMarker);
 			}
 		}
-		if (activeGame.gameOver) {
-			// TODO: Change bg of winning Trio
+		if (activeGame.gameOver && activeGame.winningTrio) {
 			for (let pair of activeGame.winningTrio) {
 				const squareId = pair[0] * 3 + pair[1];
 				document.getElementById(squareId).style.backgroundColor =
@@ -80,19 +90,18 @@ function updateGame(gameState) {
 }
 
 function updateStatusMessage() {
-	if (!activeGame || !activeGame.code)
-		gameStatus.innerText = "No Current Game Active";
+	if (!activeGame) gameStatus.innerText = "No Current Game Active";
 	else if (activeGame.gameOver) gameStatus.innerText = "Game Over!";
-	else if (activeGame.code && !activeGame.playerTwoName)
-		gameStatus.innerText = "Waiting for Opponent";
+	else if (!activeGame.playerTwoName || !activeGame.playerOneName)
+		gameStatus.innerText = "Waiting For An Opponent";
 	else
 		gameStatus.innerText =
 			"Playing against '" +
-			(gameName === activeGame.playerOneName
-				? activeGame.playerTwoName
-				: activeGame.playerOneName) +
+			(myNumber === 1
+				? activeGame.playerTwoName ?? "Unknown"
+				: activeGame.playerOneName ?? "Unknown") +
 			"' - " +
-			(activeGame.activePlayer === activeGame.activePlayer
+			(myNumber === activeGame.activePlayer
 				? "Your Move!"
 				: "Waiting On Opponent");
 }

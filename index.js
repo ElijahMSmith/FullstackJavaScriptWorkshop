@@ -1,6 +1,6 @@
 import Express from "express";
 import http from "http";
-import startSocketServer from "./socket";
+import { startSocketServer } from "./socket.js";
 
 const app = Express();
 const server = http.createServer(app);

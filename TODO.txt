@@ -1,0 +1,2 @@
+- checkGameOver doesn't work
+- main.js needs to handle if trio is null but gameOver true (draw)

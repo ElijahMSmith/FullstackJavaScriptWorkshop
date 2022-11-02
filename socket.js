@@ -1,6 +1,7 @@
-import { Game, Player } from "./game";
+import { Game, Player } from "./game.js";
+import { Server } from "socket.io";
 
-export default (server) => {
+const startSocketServer = (server) => {
 	const io = new Server(server);
 	const activeGames = new Map();
 
@@ -22,31 +23,33 @@ export default (server) => {
 
 		socket.on("joinGame", (code, name, callback) => {
 			console.log("joinGame", code, name);
-			const game = activeGames.get(code);
+			let game = activeGames.get(code);
+			let playerNum = -1;
+
 			if (game) {
 				if (game.player2 !== null) {
-					callback(false);
+					callback(false, -1);
 					return;
 				}
 				game.player2 = new Player(socket.id, name, 2);
+				playerNum = 2;
 			} else {
-				const newGame = new Game(new Player(socket.id, name, 1));
-				activeGames[code] = newGame;
-				socket.join(code);
+				game = new Game(new Player(socket.id, name, 1));
+				activeGames.set(code, game);
+				playerNum = 1;
 			}
 
-			io.to(code).emit("update", newGame.currentState);
-			callback(true);
+			socket.join(code);
+			io.to(code).emit("update", game.currentState);
+			callback(true, playerNum, game.currentState);
 		});
 
 		socket.on("playMove", (code, location, callback) => {
 			console.log("playMove", code, location);
-			const game = activeGames.get(code);
-			if (
-				!game ||
-				(game.player1.playerId !== socket.id &&
-					game.player2.playerId !== socket.id)
-			) {
+			let game = activeGames.get(code);
+
+			// If there is no game, or the game only has one player, fail
+			if (!game || !game.player1 || !game.player2) {
 				callback(false);
 				return;
 			}
@@ -54,7 +57,7 @@ export default (server) => {
 			const playerNum = game.player1.playerId === socket.id ? 1 : 2;
 
 			const newState = game.playMove(playerNum, location);
-			if (!moveResult) {
+			if (!newState) {
 				callback(false);
 			} else {
 				io.to(code).emit("update", newState);
@@ -63,3 +66,5 @@ export default (server) => {
 		});
 	});
 };
+
+export { startSocketServer };

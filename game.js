@@ -15,18 +15,12 @@ class Game {
 	playMove(playerNum, location) {
 		if (this.gameOver) return null;
 		if (playerNum !== this.activePlayer) return null;
+		if (!Array.isArray(location) || !location.length === 2) return null;
+		if (this.gameState[location[0]][location[1]] !== " ") return null;
 
-		if (
-			!location ||
-			typeof location.row !== "number" ||
-			typeof location.col !== "number"
-		)
-			return null;
-
-		this.gameState[location.row][location.col] =
-			playerNum === 1 ? "X" : "O";
+		this.gameState[location[0]][location[1]] = playerNum === 1 ? "X" : "O";
 		this.checkIfGaveOver();
-		if (!this.gameOver) this.activePlayer = (this.activePlayer + 1) % 2;
+		if (!this.gameOver) this.activePlayer = this.activePlayer === 1 ? 2 : 1;
 
 		return this.currentState;
 	}
@@ -44,42 +38,72 @@ class Game {
 
 	checkIfGaveOver() {
 		const gs = this.gameState;
-		for (let i = 0; i < 3; i++) {
-			if ((gs[i][0] === gs[i][1]) === gs[i][2]) {
+
+		for (let s = 0; s < 2; s++) {
+			const symbol = s === 0 ? "X" : "O";
+			for (let i = 0; i < 3; i++) {
+				if (
+					gs[i][0] === symbol &&
+					gs[i][1] === symbol &&
+					gs[i][2] === symbol
+				) {
+					this.winningTrio = [
+						[i, 0],
+						[i, 1],
+						[i, 2],
+					];
+					this.gameOver = true;
+					return;
+				}
+
+				if (
+					gs[0][i] === symbol &&
+					gs[1][i] === symbol &&
+					gs[2][i] === symbol
+				) {
+					this.winningTrio = [
+						[0, i],
+						[1, i],
+						[2, i],
+					];
+					this.gameOver = true;
+					return;
+				}
+			}
+
+			if (
+				gs[0][0] === symbol &&
+				gs[1][1] === symbol &&
+				gs[2][2] === symbol
+			) {
 				this.winningTrio = [
-					[i, 0],
-					[i, 1],
-					[i, 2],
+					[0, 0],
+					[1, 1],
+					[2, 2],
 				];
 				this.gameOver = true;
-				return;
 			}
-		}
-		for (let j = 0; j < 3; j++) {
-			if ((gs[0][j] === gs[1][j]) === gs[2][j]) {
+			if (
+				gs[0][2] === symbol &&
+				gs[1][1] === symbol &&
+				gs[2][0] === symbol
+			) {
 				this.winningTrio = [
-					[0, j],
-					[1, j],
-					[2, j],
+					[0, 2],
+					[1, 1],
+					[2, 0],
 				];
 				this.gameOver = true;
-				return;
 			}
 		}
-		if ((gs[0][0] === gs[1][1]) === gs[2][2]) {
-			this.winningTrio = [
-				[0, 0],
-				[1, 1],
-				[2, 2],
-			];
+
+		let count = 0;
+		for (let i = 0; i < 3; i++)
+			for (let j = 0; j < 3; j++) if (gs[i][j] !== " ") count++;
+		if (count === 9) {
+			this.winningTrio = null;
 			this.gameOver = true;
-		} else if ((gs[0][2] === gs[1][1]) === gs[2][0]) {
-			this.winningTrio = [
-				[0, 2],
-				[1, 1],
-				[2, 0],
-			];
-			this.gameOver = true;
+			return;
 		}
 	}
 }
