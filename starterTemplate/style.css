@@ -1,0 +1,37 @@
+.cell {
+	background-color: red;
+	border: 3px solid black;
+	padding: 10px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+#testPing {
+	margin-right: 15px;
+}
+
+.marker {
+	display: none;
+	color: black;
+	width: 90%;
+	height: 90%;
+}
+
+#gameTable {
+	margin-top: 30px;
+	display: grid;
+	gap: 5px;
+	grid-template-columns: repeat(3, 1fr);
+	grid-template-rows: repeat(3, 1fr);
+	width: 480px;
+	height: 480px;
+}
+
+#app {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	height: 100vh;
+}
