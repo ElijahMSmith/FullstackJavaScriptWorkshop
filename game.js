@@ -1,7 +1,7 @@
-export default class Game {
+class Game {
 	constructor(player1, player2) {
-		this.player1 = player1 ?? "N/A"; // X
-		this.player2 = player2 ?? "N/A"; // O
+		this.player1 = player1 ?? null; // X
+		this.player2 = player2 ?? null; // O
 		this.activePlayer = 1;
 		this.gameState = [
 			[" ", " ", " "],
@@ -12,27 +12,33 @@ export default class Game {
 		this.gameOver = false;
 	}
 
-	playMove(playerNum, row, col) {
+	playMove(playerNum, location) {
 		if (this.gameOver) return null;
 		if (playerNum !== this.activePlayer) return null;
 
-		this.gameState[row][col] = playerNum === 1 ? "X" : "O";
+		if (
+			!location ||
+			typeof location.row !== "number" ||
+			typeof location.col !== "number"
+		)
+			return null;
+
+		this.gameState[location.row][location.col] =
+			playerNum === 1 ? "X" : "O";
 		this.checkIfGaveOver();
 		if (!this.gameOver) this.activePlayer = (this.activePlayer + 1) % 2;
 
-		return {
-			playedBy: playerNum,
-			newGameState: this.gameState,
-			gameOver: this.gameOver,
-			winningTrio: this.winningTrio,
-		};
+		return this.currentState;
 	}
 
 	get currentState() {
 		return {
+			playerOneName: this.player1?.playerName,
+			playerTwoName: this.player2?.playerName,
 			activePlayer: this.activePlayer,
 			gameState: this.gameState,
 			gameOver: this.gameOver,
+			winningTrio: this.winningTrio,
 		};
 	}
 
@@ -77,3 +83,13 @@ export default class Game {
 		}
 	}
 }
+
+class Player {
+	constructor(playerId, playerName, playerNum) {
+		this.playerId = playerId;
+		this.playerName = playerName;
+		this.playerNum = playerNum;
+	}
+}
+
+export { Game, Player };
