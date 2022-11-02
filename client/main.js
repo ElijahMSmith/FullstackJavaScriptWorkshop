@@ -3,6 +3,7 @@ const codeInput = document.getElementById("codeInput");
 const nameInput = document.getElementById("nameInput");
 const startForm = document.getElementById("startForm");
 const gameStatus = document.getElementById("gameStatus");
+const pingButton = document.getElementById("testPing");
 
 const xMarker = '<img src="x.svg" class="marker" />';
 const oMarker = '<img src="o.svg" class="marker" />';
@@ -29,6 +30,8 @@ for (const cell of cells) {
 		);
 	});
 }
+
+pingButton.addEventListener("click", () => testPing());
 
 startForm.addEventListener("submit", (e) => {
 	e.preventDefault();
@@ -87,6 +90,24 @@ function updateGame(gameState) {
 		}
 	}
 	updateStatusMessage();
+}
+
+function testPing() {
+	console.log("Ping!");
+	const start = new Date().getTime();
+	fetch("http://localhost:3000/ping", {
+		method: "GET", // *GET, POST, PUT, DELETE, etc.
+		headers: {
+			"Content-Type": "application/json",
+		},
+	})
+		.then((res) => res.json())
+		.then((data) => {
+			const end = new Date().getTime();
+			const duration = end - start;
+			console.log(data.ping + " - " + duration + "ms");
+		})
+		.catch((err) => console.error(err));
 }
 
 function updateStatusMessage() {

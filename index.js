@@ -7,8 +7,8 @@ const server = http.createServer(app);
 const port = 3000;
 
 app.use("/", Express.static("client"));
-app.use("/api/connect", (req, res) => {
-	res.status(200).send({ hello: "world" });
+app.get("/ping", (req, res) => {
+	res.status(200).send({ ping: "Pong!" });
 });
 
 server.listen(port, () => {
