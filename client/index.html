@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="stylesheet" href="style.css" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>TicTacToe</title>
+	</head>
+	<body>
+		<div id="app">
+			<form id="startForm">
+				<input type="text" id="nameInput" placeholder="Connect As" />
+				<input
+					type="text"
+					id="codeInput"
+					placeholder="Name Your Room"
+				/>
+				<button type="submit" id="joinGame">Create/Join</button>
+			</form>
+			<h1 id="gameStatus" display="hidden">
+				Game against PLACEHOLDER: Finished
+			</h1>
+			<div id="gameTable">
+				<div class="cell" id="1"></div>
+				<div class="cell" id="2"></div>
+				<div class="cell" id="3"></div>
+				<div class="cell" id="4"></div>
+				<div class="cell" id="5"></div>
+				<div class="cell" id="6"></div>
+				<div class="cell" id="7"></div>
+				<div class="cell" id="8"></div>
+				<div class="cell" id="9"></div>
+			</div>
+		</div>
+
+		<script type="module" src="main.js"></script>
+	</body>
+</html>
