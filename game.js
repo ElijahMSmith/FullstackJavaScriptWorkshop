@@ -82,6 +82,7 @@ class Game {
 					[2, 2],
 				];
 				this.gameOver = true;
+				return;
 			}
 			if (
 				gs[0][2] === symbol &&
@@ -94,6 +95,7 @@ class Game {
 					[2, 0],
 				];
 				this.gameOver = true;
+				return;
 			}
 		}
 
@@ -103,7 +105,6 @@ class Game {
 		if (count === 9) {
 			this.winningTrio = null;
 			this.gameOver = true;
-			return;
 		}
 	}
 }

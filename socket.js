@@ -11,8 +11,8 @@ const startSocketServer = (server) => {
 			console.log("Disconnecting socket " + socket.id);
 			activeGames.forEach((game, code) => {
 				if (
-					game.player1.playerId === socket.id ||
-					game.player2.playerId === socket.id
+					game.player1?.playerId === socket.id ||
+					game.player2?.playerId === socket.id
 				) {
 					io.to(code).emit("terminated");
 					io.socketsLeave(code);
@@ -39,16 +39,26 @@ const startSocketServer = (server) => {
 				playerNum = 1;
 			}
 
+			activeGames.forEach((otherGame, otherCode) => {
+				if (
+					otherCode !== code &&
+					(otherGame.player1.playerId === socket.id ||
+						otherGame.player2.playerId === socket.id)
+				) {
+					io.to(otherCode).emit("terminated");
+					io.socketsLeave(otherCode);
+					activeGames.delete(otherCode);
+				}
+			});
 			socket.join(code);
 			io.to(code).emit("update", game.currentState);
-			callback(true, playerNum, game.currentState);
+			callback(true, playerNum);
 		});
 
 		socket.on("playMove", (code, location, callback) => {
 			console.log("playMove", code, location);
 			let game = activeGames.get(code);
 
-			// If there is no game, or the game only has one player, fail
 			if (!game || !game.player1 || !game.player2) {
 				callback(false);
 				return;
@@ -61,6 +71,10 @@ const startSocketServer = (server) => {
 				callback(false);
 			} else {
 				io.to(code).emit("update", newState);
+				if (newState.gameOver) {
+					io.socketsLeave(code);
+					activeGames.delete(code);
+				}
 				callback(true);
 			}
 		});

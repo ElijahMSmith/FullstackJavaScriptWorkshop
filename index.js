@@ -11,8 +11,6 @@ app.get("/ping", (req, res) => {
 	res.status(200).send({ ping: "Pong!" });
 });
 
-server.listen(port, () => {
-	console.log(`Example app listening on port ${port}`);
-});
+server.listen(port, () => console.log(`Listening on port ${port}`));
 
 startSocketServer(server);

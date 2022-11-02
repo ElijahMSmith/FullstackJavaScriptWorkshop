@@ -5,9 +5,6 @@ const startForm = document.getElementById("startForm");
 const gameStatus = document.getElementById("gameStatus");
 const pingButton = document.getElementById("testPing");
 
-const xMarker = '<img src="x.svg" class="marker" />';
-const oMarker = '<img src="o.svg" class="marker" />';
-
 const socket = io();
 
 let activeGame = null;
@@ -37,9 +34,8 @@ startForm.addEventListener("submit", (e) => {
 	e.preventDefault();
 	const code = codeInput.value;
 	const name = nameInput.value;
-	activeGame = null;
 
-	socket.emit("joinGame", code, name, (success, playerNum, gameState) => {
+	socket.emit("joinGame", code, name, (success, playerNum) => {
 		if (!success) console.log("Not able to create/join game");
 		else {
 			console.log("Game joined successfully!");
@@ -57,13 +53,12 @@ socket.on("terminated", () => {
 
 function updateGame(gameState) {
 	console.log(gameState);
-	for (let marker of document.querySelectorAll(".marker")) marker.remove();
+	clearBoard();
 
 	if (!gameState) {
 		activeGame = null;
 		gameCode = null;
-		for (let box of document.querySelectorAll(".cell"))
-			box.style.backgroundColor = "red";
+		myNumber = null;
 	} else {
 		activeGame = gameState;
 
@@ -79,27 +74,32 @@ function updateGame(gameState) {
 				if (val === "X") newMarker.src = "x.svg";
 				else if (val === "O") newMarker.src = "o.svg";
 				document.getElementById(parentId).appendChild(newMarker);
+				document.getElementById(parentId).style.backgroundColor = "red";
 			}
-		}
-		if (activeGame.gameOver && activeGame.winningTrio) {
-			for (let pair of activeGame.winningTrio) {
-				const squareId = pair[0] * 3 + pair[1];
-				document.getElementById(squareId).style.backgroundColor =
-					"green";
+
+			if (activeGame.gameOver && activeGame.winningTrio) {
+				for (let pair of activeGame.winningTrio) {
+					const squareId = pair[0] * 3 + pair[1];
+					document.getElementById(squareId).style.backgroundColor =
+						"green";
+				}
 			}
 		}
 	}
 	updateStatusMessage();
 }
 
+function clearBoard() {
+	for (let marker of document.querySelectorAll(".marker")) marker.remove();
+	for (let box of document.querySelectorAll(".cell"))
+		box.style.backgroundColor = "red";
+}
+
 function testPing() {
 	console.log("Ping!");
 	const start = new Date().getTime();
 	fetch("http://localhost:3000/ping", {
-		method: "GET", // *GET, POST, PUT, DELETE, etc.
-		headers: {
-			"Content-Type": "application/json",
-		},
+		method: "GET",
 	})
 		.then((res) => res.json())
 		.then((data) => {
