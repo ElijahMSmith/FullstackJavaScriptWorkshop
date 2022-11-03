@@ -29,7 +29,7 @@ for (const cell of cells) {
 	});
 }
 
-pingButton.addEventListener("click", () => testPing());
+pingButton.addEventListener("click", testPing);
 
 // Submit join request or create a new game if game doesn't exist
 startForm.addEventListener("submit", (e) => {

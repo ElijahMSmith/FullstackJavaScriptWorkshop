@@ -8,16 +8,22 @@
 	</head>
 	<body>
 		<div id="app">
-			<form id="startForm">
+			<div id="formHolder">
 				<button id="testPing">Ping!</button>
-				<input type="text" id="nameInput" placeholder="Connect As" />
-				<input
-					type="text"
-					id="codeInput"
-					placeholder="Name Your Room"
-				/>
-				<button type="submit" id="joinGame">Create/Join</button>
-			</form>
+				<form id="startForm">
+					<input
+						type="text"
+						id="nameInput"
+						placeholder="Connect As"
+					/>
+					<input
+						type="text"
+						id="codeInput"
+						placeholder="Name Your Room"
+					/>
+					<button type="submit" id="joinGame">Create/Join</button>
+				</form>
+			</div>
 			<h1 id="gameStatus"></h1>
 			<div id="gameTable">
 				<div class="cell" id="0"></div>
