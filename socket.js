@@ -8,6 +8,8 @@ const startSocketServer = (server) => {
 	io.on("connection", (socket) => {
 		console.log("Connected socket " + socket.id);
 		socket.on("disconnecting", () => {
+			// Terminate games and disconnect all players if
+			// disconnecting socket was participating
 			console.log("Disconnecting socket " + socket.id);
 			activeGames.forEach((game, code) => {
 				if (
@@ -27,6 +29,7 @@ const startSocketServer = (server) => {
 			let playerNum = -1;
 
 			if (game) {
+				// If game exists and a slot is open, insert as player 2
 				if (game.player2 !== null) {
 					callback(false, -1);
 					return;
@@ -34,11 +37,13 @@ const startSocketServer = (server) => {
 				game.player2 = new Player(socket.id, name, 2);
 				playerNum = 2;
 			} else {
+				// Create and store new game, fill as player 1
 				game = new Game(new Player(socket.id, name, 1));
 				activeGames.set(code, game);
 				playerNum = 1;
 			}
 
+			// Terminate and disconnect anyone involved in games the user is currently in
 			activeGames.forEach((otherGame, otherCode) => {
 				if (
 					otherCode !== code &&
@@ -50,6 +55,7 @@ const startSocketServer = (server) => {
 					activeGames.delete(otherCode);
 				}
 			});
+			// Join to new/existing game room and send updated player config
 			socket.join(code);
 			io.to(code).emit("update", game.currentState);
 			callback(true, playerNum);
@@ -59,6 +65,7 @@ const startSocketServer = (server) => {
 			console.log("playMove", code, location);
 			let game = activeGames.get(code);
 
+			// Game doesn't exist or isn't full yet
 			if (!game || !game.player1 || !game.player2) {
 				callback(false);
 				return;
@@ -66,10 +73,13 @@ const startSocketServer = (server) => {
 
 			const playerNum = game.player1.playerId === socket.id ? 1 : 2;
 
+			// Play the new move
 			const newState = game.playMove(playerNum, location);
 			if (!newState) {
+				// Move didn't work
 				callback(false);
 			} else {
+				// Move worked, terminate game if it is now over so room is reusable
 				io.to(code).emit("update", newState);
 				if (newState.gameOver) {
 					io.socketsLeave(code);

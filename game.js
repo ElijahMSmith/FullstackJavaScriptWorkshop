@@ -16,7 +16,7 @@ class Game {
 		if (this.gameOver) return null;
 		if (playerNum !== this.activePlayer) return null;
 		if (!Array.isArray(location) || !location.length === 2) return null;
-		if (this.gameState[location[0]][location[1]] !== " ") return null;
+		if (this.gameState[location[0]][location[1]] !== " ") return null; // Location not empty
 
 		this.gameState[location[0]][location[1]] = playerNum === 1 ? "X" : "O";
 		this.checkIfGaveOver();
@@ -25,6 +25,7 @@ class Game {
 		return this.currentState;
 	}
 
+	// Returns some composite value like a property access
 	get currentState() {
 		return {
 			playerOneName: this.player1?.playerName,
@@ -40,8 +41,10 @@ class Game {
 		const gs = this.gameState;
 
 		for (let s = 0; s < 2; s++) {
+			// Check for both symbols
 			const symbol = s === 0 ? "X" : "O";
 			for (let i = 0; i < 3; i++) {
+				// Checks matching rows
 				if (
 					gs[i][0] === symbol &&
 					gs[i][1] === symbol &&
@@ -56,6 +59,7 @@ class Game {
 					return;
 				}
 
+				// Check matching columns
 				if (
 					gs[0][i] === symbol &&
 					gs[1][i] === symbol &&
@@ -71,6 +75,7 @@ class Game {
 				}
 			}
 
+			// Check diagonals
 			if (
 				gs[0][0] === symbol &&
 				gs[1][1] === symbol &&
@@ -99,6 +104,7 @@ class Game {
 			}
 		}
 
+		// Check if board is full but no winner (draw)
 		let count = 0;
 		for (let i = 0; i < 3; i++)
 			for (let j = 0; j < 3; j++) if (gs[i][j] !== " ") count++;
