@@ -35,3 +35,7 @@
 	flex-direction: column;
 	height: 100vh;
 }
+
+#formHolder {
+	display: flex;
+}
