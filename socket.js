@@ -71,6 +71,15 @@ const startSocketServer = (server) => {
 				return;
 			}
 
+			// User isn't part of the game
+			if (
+				game.player1.playerId !== socket.id &&
+				game.player2.playerId !== socket.id
+			) {
+				callback(false);
+				return;
+			}
+
 			const playerNum = game.player1.playerId === socket.id ? 1 : 2;
 
 			// Play the new move

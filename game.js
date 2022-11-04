@@ -16,7 +16,7 @@ class Game {
 		if (this.gameOver) return null;
 		if (playerNum !== this.activePlayer) return null;
 		if (!Array.isArray(location) || !location.length === 2) return null;
-		if (this.gameState[location[0]][location[1]] !== " ") return null; // Location not empty
+		if (this.gameState[location[0]][location[1]] !== " ") return null; // Location already has a piece
 
 		this.gameState[location[0]][location[1]] = playerNum === 1 ? "X" : "O";
 		this.checkIfGaveOver();

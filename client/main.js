@@ -49,15 +49,13 @@ startForm.addEventListener("submit", (e) => {
 });
 
 // Any game state updates from the activeGame
-socket.on("update", (gameState) => updateGame(gameState));
+socket.on("update", updateGame);
 
 // activeGame is terminated and player was disconnected
-socket.on("terminated", () => {
-	updateGame(null);
-});
+socket.on("terminated", updateGame(null));
 
 function updateGame(gameState) {
-	console.log(gameState);
+	console.log("updateGame", gameState);
 	clearBoard();
 
 	if (!gameState) {
@@ -66,7 +64,7 @@ function updateGame(gameState) {
 		gameCode = null;
 		myNumber = null;
 	} else {
-        // Update with new gameState
+		// Update with new gameState
 		activeGame = gameState;
 
 		for (let i = 0; i < 3; i++) {
@@ -74,17 +72,16 @@ function updateGame(gameState) {
 				const val = activeGame.gameState[i][j];
 				if (val === " ") continue;
 
-                // Insert markers into occupied squares
+				// Insert markers into occupied squares
 				const parentId = i * 3 + j;
 				let newMarker = document.createElement("img");
 				newMarker.classList.add("marker");
-				newMarker.style.display = "block";
 				if (val === "X") newMarker.src = "x.svg";
 				else if (val === "O") newMarker.src = "o.svg";
 				document.getElementById(parentId).appendChild(newMarker);
 			}
 
-            // If the game is over, highlight the winning squares in green
+			// If the game is over, highlight the winning squares in green
 			if (activeGame.gameOver && activeGame.winningTrio) {
 				for (let pair of activeGame.winningTrio) {
 					const squareId = pair[0] * 3 + pair[1];
